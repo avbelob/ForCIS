@@ -65,7 +65,7 @@ class Field {
       is_game_end_ = true;
       points -= 5;
     }
-    if(open_cell_count_ == field_height_*field_width_) {
+    if (open_cell_count_ == field_height_ * field_width_) {
       is_game_end_ = true;
     }
   }
@@ -164,7 +164,7 @@ void PlayerStep(Field &field, int &player_points, int &our_points) {
   }
 }
 
-int GetNotOpenNeighboringCellsCount(Field &field, ssize_t i, ssize_t j) {
+int GetNotOpenNeighCellsCount(Field &field, ssize_t i, ssize_t j) {
   int not_open_neigh_count = 0;
   if (i != 1) {
     if (j != 1) {
@@ -212,16 +212,28 @@ int GetNotOpenNeighboringCellsCount(Field &field, ssize_t i, ssize_t j) {
   return not_open_neigh_count;
 }
 
+int GetNeighCellsCount(Field &field, ssize_t i, ssize_t j) {
+  if ((i == 1 && j == 1) || (i == 1 && j == field_width_) ||
+      (i == field_height_ && j == 1) ||
+      (i == field_height_ && j == field_width_)) {
+    return 3;
+  }
+  if (i == 1 || j == 1 || i == field_height_ || j == field_width_) {
+    return 5;
+  }
+  return 8;
+}
+
 void OurStep(Field &field, int &player_points, int &our_points) {
   double bomb_probability[field_height_][field_width_] = {};
   double not_open_neigh_count = 0;
   double cur_value = 0;
 
+  // Подсчёт вероятностей
   for (ssize_t i = 1; i <= field_height_; ++i) {
     for (ssize_t j = 1; j <= field_width_; ++j) {
       if (field.IsOpen(i, j) && field.GetValue(i, j) != '0') {
-        not_open_neigh_count =
-                (double) GetNotOpenNeighboringCellsCount(field, i, j);
+        not_open_neigh_count = GetNotOpenNeighCellsCount(field, i, j);
 
         cur_value = (int) field.GetValue(i, j) - 48;
 
@@ -262,36 +274,18 @@ void OurStep(Field &field, int &player_points, int &our_points) {
 
       }
 
-      if (field.IsOpen(i, j) && field.GetValue(i, j) == '0') {
-        if (i != 1) {
-          if (j != 1) {
-            bomb_probability[i - 1][j - 1] = -1;
-          }
-          if (j != field_width_) {
-            bomb_probability[i - 1][j + 1] = -1;
-          }
 
-          bomb_probability[i - 1][j] = -1;
-        }
-
-        if (i != field_height_) {
-          if (j != 1) {
-            bomb_probability[i + 1][j - 1] = -1;
-          }
-          if (j != field_width_) {
-            bomb_probability[i + 1][j + 1] = -1;
-          }
-
-          bomb_probability[i + 1][j] = -1;
-        }
-
-        if (j != 1) {
-          bomb_probability[i][j - 1] = -1;
-        }
-        if (j != field_width_) {
-          bomb_probability[i][j + 1] = -1;
+      // Не очень хотим идти в клетки без соседей,
+      // так что давайте сделаем им большие вероятности
+      // (но меньше 1, чтобы ходить в них, если все открытые клетки
+      // соседничают с бомбами)
+      if (!field.IsOpen(i, j)) {
+        if (GetNotOpenNeighCellsCount(field, i, j) ==
+            GetNeighCellsCount(field, i, j)) {
+          bomb_probability[i][j] = 0.99;
         }
       }
+
     }
   }
 
