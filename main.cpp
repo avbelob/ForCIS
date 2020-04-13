@@ -1,3 +1,5 @@
+// Тут иногда очень плохой код... Извините :c
+
 #include <iostream>
 #include <vector>
 
@@ -8,7 +10,7 @@ enum {
 
 class Field {
  public:
-  Field() {
+  explicit Field() {
     field_.resize(field_height_);
   }
 
@@ -77,45 +79,45 @@ class Field {
 
     if (first_coord != 0) {
       if (second_coord != 0) {
-        if (!field_[first_coord - 1][second_coord - 1].is_open) {
+        if (field_[first_coord - 1][second_coord - 1].is_open) {
           points += (int) field_[first_coord - 1][second_coord - 1].value - 48;
         }
       }
       if (second_coord != field_width_ - 1) {
-        if (!field_[first_coord - 1][second_coord + 1].is_open) {
+        if (field_[first_coord - 1][second_coord + 1].is_open) {
           points += (int) field_[first_coord - 1][second_coord + 1].value - 48;
         }
       }
 
-      if (!field_[first_coord - 1][second_coord].is_open) {
+      if (field_[first_coord - 1][second_coord].is_open) {
         points += (int) field_[first_coord - 1][second_coord].value - 48;
       }
     }
 
     if (first_coord != field_height_ - 1) {
       if (second_coord != 0) {
-        if (!field_[first_coord + 1][second_coord - 1].is_open) {
+        if (field_[first_coord + 1][second_coord - 1].is_open) {
           points += (int) field_[first_coord + 1][second_coord - 1].value - 48;
         }
       }
       if (second_coord != field_width_ - 1) {
-        if (!field_[first_coord + 1][second_coord + 1].is_open) {
+        if (field_[first_coord + 1][second_coord + 1].is_open) {
           points += (int) field_[first_coord + 1][second_coord + 1].value - 48;
         }
       }
 
-      if (!field_[first_coord + 1][second_coord].is_open) {
+      if (field_[first_coord + 1][second_coord].is_open) {
         points += (int) field_[first_coord + 1][second_coord].value - 48;
       }
     }
 
     if (second_coord != 0) {
-      if (!field_[first_coord][second_coord - 1].is_open) {
+      if (field_[first_coord][second_coord - 1].is_open) {
         points += (int) field_[first_coord][second_coord - 1].value - 48;
       }
     }
     if (second_coord != field_width_ - 1) {
-      if (!field_[first_coord][second_coord + 1].is_open) {
+      if (field_[first_coord][second_coord + 1].is_open) {
         points += (int) field_[first_coord][second_coord + 1].value - 48;
       }
     }
@@ -154,11 +156,13 @@ void GameEnd(int &player_points, int &our_points) {
 };
 
 void PlayerStep(Field &field, int &player_points, int &our_points) {
+  field.PrintField();
   std::cout << "Введите координаты кледки, которую хотите открыть: \n";
   int first_coord = 0;
   int second_coord = 0;
   std::cin >> first_coord >> second_coord;
   field.OpenCell(first_coord, second_coord, player_points);
+  field.PrintField();
   if (field.IsGameEnd()) {
     GameEnd(player_points, our_points);
   }
@@ -315,6 +319,7 @@ void OurStep(Field &field, int &player_points, int &our_points) {
   }
 
   field.OpenCell(first_coord, second_coord, our_points);
+  field.PrintField();
   if (field.IsGameEnd()) {
     GameEnd(player_points, our_points);
   }
@@ -324,10 +329,10 @@ int main() {
   Field field;
 
   field.FieldCreation();
-  field.PrintField();
 
   int player_points = 0;
   int our_points = 0;
+
   while (true) {
     PlayerStep(field, player_points, our_points);
     OurStep(field, player_points, our_points);
