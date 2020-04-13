@@ -61,9 +61,9 @@ class Field {
 
   void OpenCell(int first_coord, int second_coord, int &points) {
     ++open_cell_count_;
-    field_[first_coord][second_coord].is_open = true;
     points += GetPounts(first_coord, second_coord);
-    if (field_[first_coord][second_coord].value == 'b') {
+    field_[first_coord - 1][second_coord - 1].is_open = true;
+    if (field_[first_coord - 1][second_coord - 1].value == 'b') {
       is_game_end_ = true;
       points -= 5;
     }
