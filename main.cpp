@@ -229,7 +229,7 @@ int GetNeighCellsCount(Field &field, ssize_t i, ssize_t j) {
 }
 
 void OurStep(Field &field, int &player_points, int &our_points) {
-  double bomb_probability[field_height_][field_width_] = {};
+  double bomb_probability[field_height_ + 1][field_width_ + 1] = {};
   double not_open_neigh_count = 0;
   double cur_value = 0;
 
@@ -293,7 +293,7 @@ void OurStep(Field &field, int &player_points, int &our_points) {
     }
   }
 
-  int min_probability = INT8_MAX;
+  int min_probability = INT32_MAX;
   int first_coord = 0;
   int second_coord = 0;
 
@@ -306,7 +306,7 @@ void OurStep(Field &field, int &player_points, int &our_points) {
           second_coord = j;
         } else {
           if (bomb_probability[i][j] == min_probability) {
-            if (field.GetPounts(i, j) >
+            if (field.GetPounts(i, j) >=
                 field.GetPounts(first_coord, second_coord)) {
               min_probability = bomb_probability[i][j];
               first_coord = i;
